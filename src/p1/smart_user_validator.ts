@@ -12,30 +12,49 @@ type Admin = {
 
 type User = Guest | Admin;
 
-function parserUser(value: unknown): User{
-    return true
-}
 
-// supporting function     
+function isObject(value: unknown): boolean{
+    return typeof value === "object" && value !== null;
+}
 
 function isAdmin(value: unknown): value is Admin{
-    if(typeof value !== "object") return false;
-     
+    if(!isObject(value)) return false;
 
-    const valueObj = value as {
-        role?: string
-        permission?: string[]
+    let temp_obj = value as {
+        role?: unknown
+        permission?: unknown
     };
 
-    if(valueObj.role !== "string") return false;
-    if(!Array.isArray(valueObj.permission)) return false;
-    return valueObj.permission.every(p => typeof p === "string");
 
+    if(typeof temp_obj.role !== "string") return false;
+    if(temp_obj.role.toLowerCase() !== "admin") return false;
+
+
+    if(!Array.isArray(temp_obj.permission)) return false;
+    return temp_obj.permission.every(p => typeof p === "string");
+    
 }
+
 
 function isGuest(value: unknown): value is Guest{
-    return true;
-    // if date is in string convert it into date 
+    if(!isObject(value)) return false;
+
+    let temp_obj = value as {
+        role?: string
+        expiresAt?: Date
+    }
+
+    if(typeof temp_obj.role !== "string") return false;
+    if(temp_obj.role.toLowerCase() !== "guest") return false;
+    if(temp_obj.expiresAt === undefined) return false;
+
+    if(temp_obj.expiresAt instanceof Date){
+        return !isNaN(temp_obj.expiresAt.getTime());
+    }
+    
 }
 
+function parserUser(value: unknown): User{
+    return true 
+}
 
