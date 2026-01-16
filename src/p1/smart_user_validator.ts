@@ -51,10 +51,34 @@ function isGuest(value: unknown): value is Guest{
     if(temp_obj.expiresAt instanceof Date){
         return !isNaN(temp_obj.expiresAt.getTime());
     }
+
+    if(typeof temp_obj.role === "string") {
+        const date = new Date(temp_obj.expiresAt);
+        return !isNaN(date.getTime())
+    }
+
+    return false;
     
 }
 
 function parserUser(value: unknown): User{
-    return true 
+    if(isAdmin(value)) {
+        return {
+            role: "admin",
+            permission: value.permission 
+        }
+    }
+
+    if(isGuest(value)) {
+        return {
+            role: "guest",
+            expiresAt: 
+            value.expiresAt instanceof Date 
+            ? value.expiresAt
+            : new Date(value.expiresAt)
+        }
+    }
+
+    throw new Error("Invalid user data");
 }
 
